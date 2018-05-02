@@ -11,6 +11,7 @@
     "react-facebook-login": "^4.0.1",
     "react-facebook-sdk": "^1.1.1",
     "react-fontawesome": "^1.6.1",
+    "react-google-charts": "^1.5.7",
     "react-motion": "^0.5.2",
     "react-navigation": "^1.5.11",
     "react-redux": "^5.0.7",
