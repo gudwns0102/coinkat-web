@@ -86,7 +86,7 @@ class ConsoleAddCoin extends React.Component {
   }
 
   async componentDidMount(){
-    var { data } = await axios.get('https://13.125.101.187:3000/reverseAll');
+    var { data } = await axios.get('https://coinkat.tk/reverseAll');
     
     this.setState({isLoadingData: false, coin2exchange: data})
   }

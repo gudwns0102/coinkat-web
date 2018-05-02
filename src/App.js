@@ -27,17 +27,17 @@ class App extends Component {
 
   async componentWillMount(){
 
-    var { data } = await axios.get('https://13.125.101.187:3000/all');
+    var { data } = await axios.get('https://coinkat.tk/all');
     store.dispatch(actions.setCoin(data));
     this.setState({isLoadingData: false})
 
     setInterval(async () => {
-      var { data } = await axios.get('https://13.125.101.187:3000/all');
+      var { data } = await axios.get('https://coinkat.tk/all');
       store.dispatch(actions.setCoin(data));
     }, 3000);
 
     Parse.initialize('QWDUKSHKDWOP@coinkat$HOFNDSESL#L');
-    Parse.serverURL = 'https://13.125.101.187:3000/parse';
+    Parse.serverURL = 'https://coinkat.tk/parse';
     
     Parse.User.enableUnsafeCurrentUser()
     var user = Parse.User.current()
