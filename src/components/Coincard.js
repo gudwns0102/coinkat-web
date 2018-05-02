@@ -2,7 +2,6 @@ import React from 'react'
 import Paper from 'material-ui/Paper';
 import { getHeaderImg, toLocaleString, translate2Origin } from '../lib';
 import {Motion, spring} from 'react-motion';
-import { Chart } from 'react-google-charts'
 
 class Coincard extends React.Component {
 
