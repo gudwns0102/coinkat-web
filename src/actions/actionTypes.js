@@ -1,0 +1,15 @@
+const GET_COIN = "GET_COIN";
+const SET_COIN = "SET_COIN";
+
+const GET_AVATAR = "GET_AVATAR";
+const SET_AVATAR = "SET_AVATAR";
+
+const SET_NAV = "SET_NAV";
+
+export {
+  GET_COIN,
+  SET_COIN,
+  GET_AVATAR,
+  SET_AVATAR,
+  SET_NAV
+}
