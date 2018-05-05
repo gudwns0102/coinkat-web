@@ -24,6 +24,8 @@ class ConsoleScreen extends React.Component {
     } else {
       this.setState({isLoadingData: false});
     }
+
+    window.OneSignal.getUserId(console.log);
   }
 
   render(){
@@ -35,12 +37,16 @@ class ConsoleScreen extends React.Component {
     }
 
     return(
-      <div style={styles.container}>
-        <Consoles.ConsoleMenu style={styles.menuSection}/>
-        <div style={styles.content}>
-          <Route exact path={`${match.url}/board`} component={Consoles.ConsoleBoard}/>
-          <Route exact path={`${match.url}/board/add`} component={Consoles.ConsoleAddCoin} />
-          <Route exact path={`${match.url}/push`} component={Consoles.ConsolePush}/>
+      <div style={{width:'100%', height:'100%', display:'flex', flexDirection:'column'}}>
+        <Consoles.ConsoleHeader />
+        <div style={styles.container}>
+          <Consoles.ConsoleMenu style={styles.menuSection}/>
+          <div style={styles.content}>
+            <Route exact path={`${match.url}/board`} component={Consoles.ConsoleBoard}/>
+            <Route exact path={`${match.url}/board/add`} component={Consoles.ConsoleBoardAdd} />
+            <Route exact path={`${match.url}/board/:exchange/:name`} component={Consoles.ConsoleBoardDetail} />
+            <Route exact path={`${match.url}/push`} component={Consoles.ConsolePush}/>
+          </div>
         </div>
       </div>
     );

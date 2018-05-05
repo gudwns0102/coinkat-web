@@ -28,17 +28,19 @@ class Coincard extends React.Component {
     const textStyle = margin > 0 ? styles.textColorRed : margin < 0 ? styles.textColorBlue : {}; 
 
     return (
-      <Paper 
+      <Paper
+        className={exchange+'-'+name}
         style={{...styles.container,  ...style, }} 
         zDepth={this.state.isMouseOver ? 4 : 2} 
         onClick={() => onClick(name)} 
         onMouseOver={() => this.setState({isMouseOver: true})} 
-        onMouseLeave={() => this.setState({isMouseOver: false})}>
-        <img src={getHeaderImg(name)} style={{width: '15%', marginTop: '12%'}} />
-        <span style={styles.origin}>{translate2Origin(name)}</span>
-        <span style={styles.name}>{name}</span>
-        <span style={{...styles.price, ...textStyle}}>{toLocaleString(currentPrice)} ￦</span>
-        <span style={{...styles.delta, ...textStyle}}>{delta}</span>
+        onMouseLeave={() => this.setState({isMouseOver: false})}
+        draggable={true}>
+        <img className={exchange+'-'+name} src={getHeaderImg(name)} style={{width: '15%', marginTop: '12%'}} />
+        <span className={exchange+'-'+name} style={styles.origin}>{translate2Origin(name)}</span>
+        <span className={exchange+'-'+name} style={styles.name}>{name}</span>
+        <span className={exchange+'-'+name} style={{...styles.price, ...textStyle}}>{toLocaleString(currentPrice)} ￦</span>
+        <span className={exchange+'-'+name} style={{...styles.delta, ...textStyle}}>{delta}</span>
       </Paper>
     )
   }

@@ -1,7 +1,5 @@
 import React from 'react';
 
-import * as Components from '../../components';
-
 import * as actions from '../../actions';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
@@ -10,10 +8,12 @@ import Paper from 'material-ui/Paper';
 
 import Parse from 'parse';
 
-import { getExchangeImg, getHeaderImg, toLocaleString, translate2Origin } from '../../lib';
+import { getExchangeImg, getHeaderImg, translate2Origin } from '../../lib';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
-import {RadioButton, RadioButtonGroup} from 'material-ui/RadioButton';
+import CircularProgress from 'material-ui/CircularProgress';
+
+import TextField from 'material-ui/TextField';
 
 class CoinEntry extends React.Component{
   
@@ -31,13 +31,13 @@ class CoinEntry extends React.Component{
     return (
       <Paper 
         style={{...style, cursor: 'pointer'}} 
-        zDepth={this.state.isMouseOver ? 4 : 2} 
+        zDepth={isMouseOver ? 4 : 2} 
         onClick={this.props.onClick}
         onMouseOver={() => this.setState({isMouseOver: true})}
         onMouseLeave={() => this.setState({isMouseOver: false})}>
-        <img src={getHeaderImg(name)} style={{width: '15%', marginTop: '12%'}} />
-        <span>{translate2Origin(name)}</span>
-        <span>{name}</span>
+        <img src={getHeaderImg(name)} alt={name} style={{width: '15%', marginTop: '2%'}} />
+        <span style={{fontWeight:'bold'}}>{translate2Origin(name)}</span>
+        <span style={{fontSize: 15, color:'gray'}}>{name}</span>
       </Paper>
     );
   }
@@ -53,6 +53,7 @@ class ConsoleAddCoin extends React.Component {
       coin2exchange: null,
       dialogOpen: false,
       selectedCoin: null,
+      queryText: '',
     }
   }
 
@@ -67,9 +68,9 @@ class ConsoleAddCoin extends React.Component {
   handleAdd = (exchange, name) => {
     const { history } = this.props;
     const user = Parse.User.current();
-    const boardData = user.get("board");
-    var index = boardData.findIndex(entry => entry.exchange == exchange && entry.name == name)
-    if(index == -1){
+    const boardData = user.get("board") || [];
+    var index = boardData.findIndex(entry => entry.exchange === exchange && entry.name === name)
+    if(index === -1){
       boardData.push({exchange, name});
       user.set("board", boardData);
       user.save()
@@ -85,6 +86,24 @@ class ConsoleAddCoin extends React.Component {
     }
   }
 
+  filterData = (data) => {
+    var result = {};
+    var queryText = this.state.queryText.toLowerCase()
+    
+    if(queryText === ''){
+      return data;
+    }
+
+    for(var name in data){
+      var origin = translate2Origin(name) || '';
+      if(name.toLowerCase().includes(queryText) || origin.toLowerCase().includes(queryText)){
+        result[name] = data[name];
+      }
+    }
+
+    return result;
+  }
+
   async componentDidMount(){
     var { data } = await axios.get('https://coinkat.tk/reverseAll');
     
@@ -96,7 +115,9 @@ class ConsoleAddCoin extends React.Component {
 
     if(isLoadingData){
       return (
-        <div>Loading...</div>
+        <div style={{...styles.container, alignItems:'center', justifyContent:'center'}}>
+          <CircularProgress />
+        </div>
       );
     }
 
@@ -105,7 +126,7 @@ class ConsoleAddCoin extends React.Component {
       <FlatButton
         onClick={() => this.handleAdd(exchange, selectedCoin)}
         style={{flex: 1, height:'100%', display:'flex', alignItems:'center', justifyContent:'center', flexDirection:'column'}}>
-        <div><img src={getExchangeImg(exchange)} style={{width:'30%'}}/></div>
+        <div><img src={getExchangeImg(exchange)} alt={exchange} style={{width:'30%'}}/></div>
         <span>{exchange.toUpperCase()}</span>
       </FlatButton>
     )
@@ -134,16 +155,28 @@ class ConsoleAddCoin extends React.Component {
       </Dialog>
     );
 
-    const entries = Object.keys(coin2exchange).map(coin => 
+    const entries = Object.keys(this.filterData(coin2exchange)).map(coin => 
       <CoinEntry 
         key={coin} 
         name={coin} 
         style={styles.entryStyle} 
         onClick={() => this.handleOpen(coin)}/>
-    )
+    );
+
+    const queryField = (
+      <div style={{width:'100%', }}>
+        <TextField
+          floatingLabelText='Find Your Coin'
+          floatingLabelFixed={true}
+          value={this.state.queryText}
+          onChange={(e, queryText) => this.setState({queryText})}
+          style={{width: 200, margin: 15}}/>
+      </div>
+    );
 
     return(
       <div style={styles.container}>
+        {queryField}
         {entries}
         {dialog}
       </div>
@@ -162,19 +195,13 @@ const styles = {
     position:'relative',
     flexDirection:'column',
     width: 200,
-    height: 320,
+    height: 125,
     alignItems:'center',
     justifyContent:'center',
     fontFamily:'Raleway',
     margin: 15,
     cursor: 'pointer'
   },
-
-  radioButton: {
-    marginTop: 16,
-    width:'100%',
-    height: 50,
-  }
 }
 
 const mapStateToProps = (state) => {

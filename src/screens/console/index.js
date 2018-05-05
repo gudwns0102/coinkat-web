@@ -1,11 +1,17 @@
+import ConsoleHeader from './ConsoleHeader';
 import ConsoleMenu from './ConsoleMenu';
 import ConsoleBoard from './ConsoleBoard';
-import ConsoleAddCoin from './ConsoleAddCoin';
+import ConsoleBoardAdd from './ConsoleBoardAdd';
+import ConsoleBoardDetail from './ConsoleBoardDetail';
+import ConsoleChart from './ConsoleChart';
 import ConsolePush from './ConsolePush';
 
 export {
+  ConsoleHeader,
   ConsoleMenu,
   ConsoleBoard,
-  ConsoleAddCoin,
+  ConsoleBoardAdd,
+  ConsoleBoardDetail,
+  ConsoleChart,
   ConsolePush,
 }

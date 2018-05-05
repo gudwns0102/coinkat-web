@@ -28,7 +28,7 @@ class HomeScreen extends React.Component {
     const { user } = this.state;
 
     const headerButtons = user ? 
-      <div>Welcome {user.get("name")} <RaisedButton label="Go to console" primary={true} onClick={() => this.props.history.push('/console')}/></div> : 
+      <div><span style={{fontFamily:'Raleway', color:'white', marginRight: 10}}>Welcome, {user.get("name")}!</span><RaisedButton label="Go to console" primary={true} onClick={() => this.props.history.push('/console')}/></div> : 
       <RaisedButton label="Sign in" primary={true} style={{marginRight: 10}} onClick={() => this.props.history.push('/login')}/>;
 
     return (
