@@ -1,18 +1,12 @@
 import React, {Component} from 'react';
-
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-
 import * as Screens from './screens';
 import reducers from './reducers';
-
 import { createStore } from 'redux';
 import { Provider } from 'react-redux';
-
 import * as actions from './actions';
-
 import { BrowserRouter as Router, Route } from "react-router-dom";
 import axios from 'axios';
-
 import Parse from 'parse'
 
 const store = createStore(reducers);
@@ -20,28 +14,53 @@ const store = createStore(reducers);
 class App extends Component {
 
   state = {
-    isLoadingData: true,
     isLoggedIn: undefined,
     isLoadingFBSDK: true,
   }
 
   async componentWillMount(){
-
-    var { data } = await axios.get('https://coinkat.tk/all');
+    var { data } = await axios.get('https://api.coinkat.tk/all');
     store.dispatch(actions.setCoin(data));
-    this.setState({isLoadingData: false})
 
     setInterval(async () => {
-      var { data } = await axios.get('https://coinkat.tk/all');
+      var { data } = await axios.get('https://api.coinkat.tk/all');
       store.dispatch(actions.setCoin(data));
     }, 3000);
 
     Parse.initialize('QWDUKSHKDWOP@coinkat$HOFNDSESL#L');
-    Parse.serverURL = 'https://coinkat.tk/parse';
-    
+    Parse.serverURL = 'https://api.coinkat.tk/parse';
     Parse.User.enableUnsafeCurrentUser()
+
     var user = Parse.User.current()
-    this.setState({isLoggedIn: user ? true: false})
+
+    if(user){
+      window.OneSignal.registerForPushNotifications();
+      
+      window.OneSignal.getUserId(response => {
+        const OneSignal = Parse.Object.extend("OneSignal");
+        const query = new Parse.Query(OneSignal);
+        query.equalTo("parent", user);
+        query.first({
+          success: onesignal => {
+            if(!onesignal){
+              onesignal = new OneSignal();
+              onesignal.set("parent", user);
+            }
+            
+            onesignal.set("web_id", response);
+            onesignal.save(null, {
+              success: onesignal => {
+                this.setState({isLoggedIn: true})
+              },
+              error: (onesignal, err) => console.log(err),
+            });
+          },
+          error: (onesignal, err) => console.log(err)
+        })
+      })
+    } else {
+      this.setState({isLoggedIn: false})
+    }
 
     //FBSDL Loading
     window.fbAsyncInit = () => {
@@ -78,9 +97,9 @@ class App extends Component {
   }
 
   render() {
-    const { isLoadingFBSDK, isLoadingData, isLoggedIn } = this.state;
+    const { isLoadingFBSDK, isLoggedIn } = this.state;
 
-    if(isLoadingData || isLoadingFBSDK || (isLoggedIn == undefined)){
+    if(isLoadingFBSDK || (isLoggedIn === undefined)){
       return <div>Loading...</div>
     }
 

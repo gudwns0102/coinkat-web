@@ -20,18 +20,48 @@ class ConsoleBoard extends React.Component {
 
     this.state = {
       isLoadingData: true,
+      board: null,
       boardData: null,
+      pushMap: null,
       dragItemIndex: null,
       willDeleted: false,
     }
   }
 
-  componentDidMount(){
+  async componentDidMount(){
+    const pushMap = {}
+
     const user = Parse.User.current();
-    const boardData = user.get("board");
 
-    this.setState({isLoadingData: false, boardData});
+    const Board = Parse.Object.extend("Board");
+    const Push = Parse.Object.extend("Push")
+    
+    const boardQuery = new Parse.Query(Board);
+    const pushQuery = new Parse.Query(Push);
+    
+    pushQuery.equalTo("parent", user);
+    boardQuery.equalTo("parent", user);
+    
+    var board = await boardQuery.first();
+    var pushes = await pushQuery.find();
 
+    pushes.map(push => {
+      var exchange = push.get("exchange");
+      var name = push.get("name");
+      var key = exchange + "-" + name;
+      pushMap[key] = push;
+    })
+
+    if(!board){
+      const new_board = new Board({parent: user, data: [{exchange: 'bithumb', name: 'BTC'}]});
+      new_board.save(null, {
+        success: board => this.setState({isLoadingData: false, board, pushMap}),
+        error: (board, err) => alert('Failed to creating your board... Please press F5'),
+      })
+    } else {
+      this.setState({isLoadingData: false, board, pushMap})
+    }
+  
     window.addEventListener('dragstart', this.handleDragStart)
     window.addEventListener('dragenter', this.handleDrag)
     window.addEventListener('dragend', this.handleDragEnd)
@@ -42,64 +72,68 @@ class ConsoleBoard extends React.Component {
     window.removeEventListener('dragstart', this.handleDragStart)
     window.removeEventListener('dragenter', this.handleDrag)
     window.removeEventListener('dragend', this.handleDragEnd)
-  
   }
 
   handleDragStart = e => {
-    const { boardData } = this.state;
+    const boardData = this.state.board.get("data");
     var id = e.target.className.split('-');
     var exchange = id[0];
     var name = id[1];
 
     var index = boardData.findIndex(entry => entry.exchange === exchange && entry.name === name);
-    this.setState({dragItemIndex: index});
-  }
-
-  handleDrag = e => {
-    console.log(e.target.className)
-    if(e.target.className.includes('trash-button')){
-      console.log(e);
-      this.setState({willDeleted: true})
-      return;
-    } else {
-      this.setState({willDeleted: false})
-    }
-
-    var { boardData, dragItemIndex } = this.state;
-    var id = e.target.className.split('-');
-    var exchange = id[0];
-    var name = id[1];
-    var index = boardData.findIndex(entry => entry.exchange === exchange && entry.name === name);
-    
-    if(index === -1){
-
-      return;
-    }
-
-    boardData = arrayMove(boardData, dragItemIndex, index);
     this.setState({dragItemIndex: index, boardData});
   }
 
+  handleDrag = e => {
+    var { board, dragItemIndex } = this.state;
+    var parent = e.target.closest('[class]');
+
+    if(parent){
+      var className = parent.className;
+      console.log(className);
+      if(className.includes('trash-button')){
+        return this.setState({willDeleted: true});
+      } else {
+        var boardData = board.get("data");
+        var exchange = className.split('-')[0];
+        var name = className.split('-')[1];
+        var index = boardData.findIndex(entry => entry.exchange === exchange && entry.name === name);
+        
+        boardData = arrayMove(boardData, dragItemIndex, index);
+        board.set("data", boardData);
+        this.setState({dragItemIndex: index, board, willDeleted: false});
+      }
+    } else {
+      this.setState({willDeleted: false});
+    }
+  }
+
   handleDragEnd = (e) => {
-    var { boardData } = this.state;
-    var user = Parse.User.current();
+    var { board } = this.state;
+    var boardData = board.get("data");
+
     if(this.state.willDeleted){
       boardData.splice(this.state.dragItemIndex, 1);
     }
-    user.set("board", boardData);
-    user.save();
-    this.setState({boardData, dragItemIndex: null, willDeleted: false})
+
+    board.set("data", boardData);
+    board.save(null, {  
+      success: board => this.setState({board, dragItemIndex: null, willDeleted: false, boardData: null}),
+      error: (board, err) => alert("Your board change is not applied in server..."), 
+    });
   }
 
   render(){
     const { history, match, coinData } = this.props;
-    const { isLoadingData, boardData } = this.state;
+    const { isLoadingData, board, pushMap } = this.state;
 
     if(isLoadingData){
       return <div>Loading...</div>
     }
 
-    const entries = (boardData || []).map(entry => {
+    var boardData = board.get("data");
+
+    const entries = boardData.map(entry => {
       const { exchange, name } = entry;
       const data = {
         exchange,
@@ -107,12 +141,11 @@ class ConsoleBoard extends React.Component {
         data: coinData[exchange][name]
       }
       return (
-        <Components.Coincard data={data} style={styles.card} onClick={(name) => history.push(`${match.url}/${exchange}/${name}`)}/>
+        <Components.Coincard data={data} style={styles.card} push={pushMap[exchange+"-"+name]} onClick={name => history.push(`${match.url}/${exchange}/${name}`)}/>
       )
     })
 
     const springOption = {stiffness: 180, damping: 17}
-
     const trash = (
       <Motion 
         style={{
@@ -122,8 +155,7 @@ class ConsoleBoard extends React.Component {
         }}>
         {value => 
           <Paper 
-            className='trash-button' zDepth={5} style={{position: 'fixed', display:'flex', alignItems:'center', justifyContent:'center', zIndex: 10000, bottom : 30, right: 30, width: value.radius*2, height: value.radius*2, borderRadius: value.radius, opacity: value.opacity, backgroundColor: `rgba(244, 67, 54, ${value.active})`}}
-            onDrop={() => console.log('hi')}>
+            className='trash-button' zDepth={5} style={{position: 'fixed', display:'flex', alignItems:'center', justifyContent:'center', zIndex: 10000, bottom : 30, right: 30, width: value.radius*2, height: value.radius*2, borderRadius: value.radius, opacity: value.opacity, backgroundColor: `rgba(244, 67, 54, ${value.active})`}}>
             <FontAwesome className='trash-button' name='trash' size={25} />
           </Paper>
         }

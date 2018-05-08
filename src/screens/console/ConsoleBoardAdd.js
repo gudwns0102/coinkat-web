@@ -68,22 +68,26 @@ class ConsoleAddCoin extends React.Component {
   handleAdd = (exchange, name) => {
     const { history } = this.props;
     const user = Parse.User.current();
-    const boardData = user.get("board") || [];
-    var index = boardData.findIndex(entry => entry.exchange === exchange && entry.name === name)
-    if(index === -1){
-      boardData.push({exchange, name});
-      user.set("board", boardData);
-      user.save()
-      .then(result => {
-        console.log('success');
-        history.push('/console/board');
-      })
-      .catch(err => {
-        console.log(err);
-      })
-    } else {
-      console.log('already existed')
-    }
+    const query = new Parse.Query(Parse.Object.extend("Board"));
+    query.equalTo("parent", user);
+    query.first({
+      success: board => {
+        var boardData = board.get("data");
+        var index = boardData.findIndex(entry => entry.exchange === exchange && entry.name === name)
+        if(index === -1){
+          boardData.push({exchange, name});
+          board.set("data", boardData);
+          board.save(null , {
+            success: board => history.push('/console/board'),
+            error: (board, err) => history.push('/console/board'),
+          })
+        } else {
+          alert('already existed');
+          this.handleClose();
+        }      
+      },
+      error: (obj, err) => alert("Failed..."),
+    })
   }
 
   filterData = (data) => {
@@ -105,9 +109,9 @@ class ConsoleAddCoin extends React.Component {
   }
 
   async componentDidMount(){
-    var { data } = await axios.get('https://coinkat.tk/reverseAll');
+    var { data } = await axios.get('https://api.coinkat.tk/reverseAll');
+    this.setState({isLoadingData: false, coin2exchange: data});
     
-    this.setState({isLoadingData: false, coin2exchange: data})
   }
 
   render(){
@@ -120,6 +124,25 @@ class ConsoleAddCoin extends React.Component {
         </div>
       );
     }
+
+    const queryField = (
+      <div style={{width:'100%', }}>
+        <TextField
+          floatingLabelText='Find Your Coin'
+          floatingLabelFixed={true}
+          value={this.state.queryText}
+          onChange={(e, queryText) => this.setState({queryText})}
+          style={{width: 200, margin: 15}}/>
+      </div>
+    );
+
+    const entries = Object.keys(this.filterData(coin2exchange)).map(coin => 
+      <CoinEntry 
+        key={coin} 
+        name={coin} 
+        style={styles.entryStyle} 
+        onClick={() => this.handleOpen(coin)}/>
+    );
 
     var exchangeList = selectedCoin ? coin2exchange[selectedCoin] : [];
     var exchangeButtons = exchangeList.map(exchange => 
@@ -153,25 +176,6 @@ class ConsoleAddCoin extends React.Component {
           {exchangeButtons}
         </div>
       </Dialog>
-    );
-
-    const entries = Object.keys(this.filterData(coin2exchange)).map(coin => 
-      <CoinEntry 
-        key={coin} 
-        name={coin} 
-        style={styles.entryStyle} 
-        onClick={() => this.handleOpen(coin)}/>
-    );
-
-    const queryField = (
-      <div style={{width:'100%', }}>
-        <TextField
-          floatingLabelText='Find Your Coin'
-          floatingLabelFixed={true}
-          value={this.state.queryText}
-          onChange={(e, queryText) => this.setState({queryText})}
-          style={{width: 200, margin: 15}}/>
-      </div>
     );
 
     return(

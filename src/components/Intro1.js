@@ -11,7 +11,7 @@ const Intro1 = ({style, coinData}) => {
           This web displays information about Cryptocurrency
         </p>
       </div>
-      {coinData ? <Components.Board data={coinData} style={{flex: 1, height: 550, marginRight: 30, zIndex: 2}}/> : null}
+      {coinData ? <Components.Board data={coinData} style={{width:'57%', height: 550, marginRight: 30, zIndex: 2}}/> : null}
     </div>
     ) 
 }

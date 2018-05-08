@@ -24,8 +24,6 @@ class ConsoleScreen extends React.Component {
     } else {
       this.setState({isLoadingData: false});
     }
-
-    window.OneSignal.getUserId(console.log);
   }
 
   render(){
@@ -46,6 +44,7 @@ class ConsoleScreen extends React.Component {
             <Route exact path={`${match.url}/board/add`} component={Consoles.ConsoleBoardAdd} />
             <Route exact path={`${match.url}/board/:exchange/:name`} component={Consoles.ConsoleBoardDetail} />
             <Route exact path={`${match.url}/push`} component={Consoles.ConsolePush}/>
+            <Route exact path={`${match.url}/push/add`} component={Consoles.ConsolePushAdd}/>
           </div>
         </div>
       </div>

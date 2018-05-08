@@ -50,7 +50,6 @@ class AuthScreen extends React.Component {
   handleResize = () => {
     var rightContent = document.getElementById('rightContent');
     this.setState({rightContentHeight: rightContent.clientHeight});
-    console.log(rightContent.clientHeight);
   }
 
   handleEnterPress = (e) => {
@@ -64,9 +63,10 @@ class AuthScreen extends React.Component {
     const { id, password } = this.state;
     Parse.User.logIn(id, password, {
       success: user => {
+        /*
         if(user.get("board") == null){
           user.set("board", [{exchange:'bithumb', name:'BTC'}]);
-        }
+        }*/
 
         history.replace('/');
       },
@@ -87,9 +87,10 @@ class AuthScreen extends React.Component {
         window.FB.api('/me', response => {
           const { name } = response;
           user.set("name", name);
+          /*
           if(user.get("board") == null){
             user.set("board", [{exchange:'bithumb', name:'BTC'}]);
-          }
+          }*/
           user.save();
           this.props.history.push('/');
         })
@@ -279,7 +280,7 @@ class AuthScreen extends React.Component {
             sitekey="6Lfq61YUAAAAAMjhD76sW8gprXndg8BPeH4uar8g"
             verifyCallback={e => this.setState({reCAPTCHA: true})}
             expiredCallback={e => this.setState({reCAPTCHA: false})}
-            onloadCallback={() => console.log('onload')}
+            onloadCallback={() => null}
             theme='dark'
             type='audio'/>
         </div>

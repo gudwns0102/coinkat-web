@@ -8,6 +8,10 @@ import Intro3 from './Intro3';
 
 import Coincard from './Coincard';
 
+
+import PushRow from './PushRow';
+import PushBoard from './PushBoard';
+
 import MenuParent from './MenuParent';
 import MenuChild from './MenuChild';
 
@@ -21,6 +25,8 @@ export {
   Intro2,
   Intro3,
   Coincard,
+  PushRow,
+  PushBoard,
   MenuParent,
   MenuChild,
   Footer,

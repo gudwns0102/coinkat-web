@@ -2,6 +2,9 @@ import React from 'react'
 import Paper from 'material-ui/Paper';
 import { getHeaderImg, toLocaleString, translate2Origin } from '../lib';
 import {Motion, spring} from 'react-motion';
+import FontAwesome from 'react-fontawesome';
+
+import { parseDelta } from '../lib';
 
 class Coincard extends React.Component {
 
@@ -14,7 +17,7 @@ class Coincard extends React.Component {
   }
 
   render(){
-    var { data, style, onClick } = this.props;
+    var { data, style, onClick, push } = this.props;
     var { name, exchange, data } = data;
     
     var { currentPrice, openPrice } = data;
@@ -22,10 +25,29 @@ class Coincard extends React.Component {
     currentPrice = Number(currentPrice);
     openPrice = Number(openPrice);
     
-    const margin = currentPrice - openPrice;
-    const percent = Number((margin/openPrice*100).toFixed(2));
-    const delta = margin > 0 ? `+${toLocaleString(margin)} (+${percent}%) ▲ ` : margin === 0 ? '0(0%)' : `${toLocaleString(margin)}(${percent}%) ▼ `;
+    const { margin, percent, delta } = parseDelta(currentPrice, openPrice);
     const textStyle = margin > 0 ? styles.textColorRed : margin < 0 ? styles.textColorBlue : {}; 
+
+    const progress = () => {
+      if(!push){
+        return null;
+      } else {
+        var upPrice = push.get("upPrice");
+        var downPrice = push.get("downPrice");
+        var range = upPrice - downPrice;
+        var currentPercent = parseFloat(((currentPrice - downPrice)/range*100).toFixed(2));
+        return [<FontAwesome name="far fa-bell" color='gray' size={30} style={{marginRight: 10}}/>, (
+          <Motion defaultStyle={{x: 0}} style={{x: spring(currentPercent)}}>
+            {value => 
+              <svg style={{flex: 1, height:'100%'}}>
+                <line x1="0" x2={`${value.x}%`} y1="50%" y2="50%" stroke="#7C4DFF" stroke-width="5" />
+                <line x1={`${value.x}%`} x2="100%" y1="50%" y2="50%" stroke="#e6e6fa" stroke-width="5" />
+              </svg>
+            }
+          </Motion>
+        )];
+      }
+    }
 
     return (
       <Paper
@@ -36,11 +58,14 @@ class Coincard extends React.Component {
         onMouseOver={() => this.setState({isMouseOver: true})} 
         onMouseLeave={() => this.setState({isMouseOver: false})}
         draggable={true}>
-        <img className={exchange+'-'+name} src={getHeaderImg(name)} style={{width: '15%', marginTop: '12%'}} />
-        <span className={exchange+'-'+name} style={styles.origin}>{translate2Origin(name)}</span>
-        <span className={exchange+'-'+name} style={styles.name}>{name}</span>
-        <span className={exchange+'-'+name} style={{...styles.price, ...textStyle}}>{toLocaleString(currentPrice)} ￦</span>
-        <span className={exchange+'-'+name} style={{...styles.delta, ...textStyle}}>{delta}</span>
+        <img src={getHeaderImg(name)} style={{width: '15%', marginTop: '12%'}} />
+        <span  style={styles.origin}>{translate2Origin(name)}</span>
+        <span  style={styles.name}>{name}</span>
+        <span  style={{...styles.price, ...textStyle}}>{toLocaleString(currentPrice)} ￦</span>
+        <span  style={{...styles.delta, ...textStyle}}>{delta}</span>
+        <div  style={styles.progressWrapper}>
+          {progress()}
+        </div>
       </Paper>
     )
   }
@@ -88,6 +113,18 @@ const styles = {
     position: 'relative',
   },
 
+  progressWrapper: {
+    display:'flex',
+    alignItems:'center',
+    justifyContent:'center',
+    flex: 1,
+    width:'75%',
+  },
+
+  pushProgress: {
+    width: '80%',
+  },
+
   textColorRed: {
     color: '#C62828'
   },
@@ -98,33 +135,3 @@ const styles = {
 }
 
 export default Coincard;
-
-/*
-<Chart
-      style={{position: 'absolute', top:'50%', width: 30}}
-        id='Hello'
-          chartType="LineChart"
-          data={[['time', 'price'], [0, 100], [1, 80], [2, 90], [3, 100], [4, 110], [5, 90]]}
-          options={{
-            smoothLine: true,
-            vAxis: {
-              gridlines: {
-                color: 'transparent'
-              },
-              baselineColor: 'transparent',
-              textPosition: 'none'
-            },
-            hAxis: {
-              gridlines: {
-                color: 'transparent'
-              },
-              baselineColor: 'transparent',
-              textPosition: 'none'
-            }
-          }}
-          graph_id="ScatterChart"
-          width="100%"
-          height="400px"
-          legend_toggle
-        />
-*/

@@ -33,7 +33,8 @@ class ConsoleMenu extends React.Component {
     ]
     
     const pushSubMenu = [
-      <Components.MenuChild title='MY Push' style={styles.menuItem} onClick={() => history.push(`${match.url}/push`)}/>
+      <Components.MenuChild title='MY Push' style={styles.menuItem} onClick={() => history.push(`${match.url}/push`)}/>,
+      <Components.MenuChild title='Register Push' style={styles.menuItem} onClick={() => history.push(`${match.url}/push/add`)}/>
     ]
 
     return(

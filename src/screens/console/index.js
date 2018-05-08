@@ -3,8 +3,8 @@ import ConsoleMenu from './ConsoleMenu';
 import ConsoleBoard from './ConsoleBoard';
 import ConsoleBoardAdd from './ConsoleBoardAdd';
 import ConsoleBoardDetail from './ConsoleBoardDetail';
-import ConsoleChart from './ConsoleChart';
 import ConsolePush from './ConsolePush';
+import ConsolePushAdd from './ConsolePushAdd';
 
 export {
   ConsoleHeader,
@@ -12,6 +12,6 @@ export {
   ConsoleBoard,
   ConsoleBoardAdd,
   ConsoleBoardDetail,
-  ConsoleChart,
   ConsolePush,
+  ConsolePushAdd,
 }
