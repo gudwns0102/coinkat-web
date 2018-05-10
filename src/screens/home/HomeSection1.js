@@ -1,16 +1,17 @@
 import React from 'react'
-import Coincard from './Coincard';
+import { Coincard } from '../../components';
 import Parse from 'parse';
 import Slider from 'react-slick';
+import './HomeSection1.css';
 
-class Intro2 extends React.Component {
+class HomeSection1 extends React.Component {
   constructor(props){
     super(props);
 
     const { coinData } = this.props;
     const Push = Parse.Object.extend("Push");
     
-    var exchange = 'bithumb';
+    var exchange = 'upbit';
     var exchangeData = coinData[exchange];
 
     this.entries = Object.keys(exchangeData).map(name => {
@@ -27,17 +28,41 @@ class Intro2 extends React.Component {
         push = null
       }
       
-      return (  
-        <div style={{display:'flex', alignItems:'center', justifyContent:'center', margin: 20}}>
+      return (
+        <div className="card">
           <Coincard data={{exchange, name, data}} push={push} onClick={() => null}/>
         </div>
       );
     })
+
+    this.state = {
+      bucketSize: 5
+    }
+  }
+
+  handleResize = (e) => {
+    /*var slider = document.getElementsByClassName('slick-slider')[0];
+    var card = document.getElementsByClassName('card')[0];
+    var slider_width = slider.clientWidth;
+    var card_width = 200;
+
+    var num = Math.max(Math.ceil(slider_width/card_width) - 2, 3);
+
+    this.setState({bucketSize: num});*/
+  }
+
+  componentDidMount(){
+    //this.handleResize();
+    window.addEventListener('resize', this.handleResize);
+  }
+
+  componentWillUnmount(){
+    window.removeEventListener('resize', this.handleResize);
   }
 
 
   render(){
-    const { style, coinData } = this.props;
+    const { style } = this.props;
 
     var option = {
       dots: false,
@@ -45,20 +70,18 @@ class Intro2 extends React.Component {
       speed: 500,
       autoplay:true,
       autoplaySpeed: 2500,
-      slidesToShow: 4,
+      slidesToShow: this.state.bucketSize,
       slidesToScroll: 3
     }
     
     return (
       <div style={{...styles.container, ...style}}>
         <div style={styles.content}>
-          <span style={{fontSize: 30, fontWeight: 'bold'}}>CoinKat</span> give you a customizable board<br/><br/>
+          <span style={{fontSize: '2.5vw', fontWeight: 'bold', fontFamily: 'Archivo Black'}}>CoinKat</span> gives you a customizable board!<br/><br/>
           <span>This web displays information about Cryptocurrency</span>
         </div>
-        <div style={styles.cards}>
-          <Slider {...option}>
-            {this.entries}
-          </Slider>
+        <div id="home-cards" style={styles.cards}>
+          {this.entries}
         </div>
       </div>
     ) 
@@ -67,23 +90,26 @@ class Intro2 extends React.Component {
 
 const styles = {
   container: {
+    position: 'relative',
+    width:'100%',
+    height:'100vh',
     display:'flex', 
-    alignItems:'center',
+    flexDirection:'column',
     fontFamily: 'Raleway',
-    backgroundColor:'red,'
+    overflow:'hidden',
   },
 
   content: {
-    flex: 1,
+    width:'80%',
     paddingTop: 50,
     paddingLeft: 30,
   },
 
   cards: {
-    width: '60%',
-    height: '100%',
-    marginTop: 200,
+    display:'flex',
+    marginTop: '10%',
+    width: '1000%',
   },
 }
 
-export default Intro2
+export default HomeSection1;

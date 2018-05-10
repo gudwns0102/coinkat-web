@@ -8,27 +8,49 @@ import * as Screens from './';
 import * as Consoles from './console';
 import FontAwesome from 'react-fontawesome';
 
+const MIN_WINDOW_WIDTH = 800;
+
 class ConsoleScreen extends React.Component {
   constructor(props){
     super(props);
 
     this.state = {
       isLoadingData: true,
+      shrinkLayout: false,
     }
   }
 
-  async componentDidMount(){
-    const user = await Parse.User.current(); 
+  handleResize = (e) => {
+    var { shrinkLayout } = this.state;
+    var width = window.innerWidth;
+    if(width < MIN_WINDOW_WIDTH && !shrinkLayout){
+      this.setState({shrinkLayout: true})
+    } else if (width > MIN_WINDOW_WIDTH && shrinkLayout){
+      this.setState({shrinkLayout: false})
+    }
+  }
+
+  componentDidMount(){
+    setTimeout(() => window.OneSignal.registerForPushNotifications(), 1000);
+    const user = Parse.User.current(); 
     if(!user){
       this.props.history.replace('/login');
     } else {
       this.setState({isLoadingData: false});
     }
+
+    this.handleResize();
+    window.addEventListener('resize', this.handleResize);
   }
+
+  componentWillUnmount(){
+    window.removeEventListener('resize', this.handleResize);
+  }
+
 
   render(){
     const { history, match } = this.props;
-    const { isLoadingData } = this.state;
+    const { isLoadingData, shrinkLayout } = this.state;
 
     if(isLoadingData){
       return <div>Check your ID</div>
@@ -36,15 +58,14 @@ class ConsoleScreen extends React.Component {
 
     return(
       <div style={{width:'100%', height:'100%', display:'flex', flexDirection:'column'}}>
-        <Consoles.ConsoleHeader />
+        <Consoles.ConsoleHeader shrink={shrinkLayout}/>
         <div style={styles.container}>
-          <Consoles.ConsoleMenu style={styles.menuSection}/>
           <div style={styles.content}>
-            <Route exact path={`${match.url}/board`} component={Consoles.ConsoleBoard}/>
+            <Route exact path={`${match.url}/board`} component={() => <Consoles.ConsoleBoard shrink={shrinkLayout}/>}/>
             <Route exact path={`${match.url}/board/add`} component={Consoles.ConsoleBoardAdd} />
             <Route exact path={`${match.url}/board/:exchange/:name`} component={Consoles.ConsoleBoardDetail} />
             <Route exact path={`${match.url}/push`} component={Consoles.ConsolePush}/>
-            <Route exact path={`${match.url}/push/add`} component={Consoles.ConsolePushAdd}/>
+            <Route exact path={`${match.url}/push/add`} component={() => <Consoles.ConsolePushAdd shrink={shrinkLayout} />}/>
           </div>
         </div>
       </div>
@@ -67,8 +88,7 @@ const styles = {
 
 
   content: {
-    flex: 5,
-    overflow:'scroll',
+    flex: 1,
   }
 }
 

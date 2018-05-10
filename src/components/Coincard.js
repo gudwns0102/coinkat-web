@@ -81,28 +81,29 @@ const styles = {
     alignItems:'center',
     backgroundColor:'white',
     fontFamily:'Raleway',
-    margin: 15,
-    cursor: 'pointer'
+    cursor: 'pointer',
+    margin: 3,
   },
 
   origin: {
+    fontSize: 'calc(8px + 0.5vw)',
     fontWeight: 'bold',
     marginTop: '2%'
   },
 
   name: {
-    fontSize: 15,
+    fontSize: 'calc(6px + 0.4vw)',
     color: 'gray'
   },
 
   price: {
     marginTop: '30%',
-    fontSize: 20,
+    fontSize: 'calc(10px + 0.6vw)',
   },
 
   delta: {
     marginTop: '5%',
-    fontSize: 15,
+    fontSize: 'calc(8px + 0.4vw)',
   },
 
   exchange: {

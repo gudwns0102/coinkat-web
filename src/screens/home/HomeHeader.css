@@ -1,0 +1,27 @@
+.exchange-section {
+  opacity: 0;
+  animation-duration: 800ms;
+  animation-name: testAnimation;
+  animation-fill-mode: forwards;
+}
+
+.coin-section {
+  opacity: 0;
+  animation-duration: 800ms;
+  animation-name: testAnimation;
+  animation-delay: 800ms;
+  animation-fill-mode: forwards;
+}
+
+.push-section {
+  opacity: 0;
+  animation-duration: 800ms;
+  animation-name: testAnimation;
+  animation-delay: 1600ms;
+  animation-fill-mode: forwards;
+}
+
+@keyframes testAnimation {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

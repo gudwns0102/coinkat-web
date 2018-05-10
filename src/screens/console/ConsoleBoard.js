@@ -124,7 +124,7 @@ class ConsoleBoard extends React.Component {
   }
 
   render(){
-    const { history, match, coinData } = this.props;
+    const { history, match, coinData, shrink } = this.props;
     const { isLoadingData, board, pushMap } = this.state;
 
     if(isLoadingData){
@@ -132,6 +132,21 @@ class ConsoleBoard extends React.Component {
     }
 
     var boardData = board.get("data");
+
+    const cardStyle = shrink ? {
+      width: (window.innerWidth-60)/3,
+      height: (window.innerWidth-60)/3*1.6,
+      margin: 7, 
+    } : {
+      width: window.innerWidth/(window.innerWidth/200),
+      height: window.innerWidth/(window.innerWidth/200)*1.6,
+      marginLeft: 8,
+      marginRight: 8,
+      //marginRight: (window.innerWidth - window.innerWidth/Math.ceil(window.innerWidth/200))/window.innerWidth/Math.ceil(window.innerWidth/200),
+      //marginLeft:(window.innerWidth - window.innerWidth/Math.ceil(window.innerWidth/200))/window.innerWidth/Math.ceil(window.innerWidth/200),
+      marginTop: 10,
+      marginBottom: 10,
+    }
 
     const entries = boardData.map(entry => {
       const { exchange, name } = entry;
@@ -141,7 +156,7 @@ class ConsoleBoard extends React.Component {
         data: coinData[exchange][name]
       }
       return (
-        <Components.Coincard data={data} style={styles.card} push={pushMap[exchange+"-"+name]} onClick={name => history.push(`${match.url}/${exchange}/${name}`)}/>
+        <Components.Coincard data={data} style={cardStyle} push={pushMap[exchange+"-"+name]} onClick={name => history.push(`${match.url}/${exchange}/${name}`)}/>
       )
     })
 
@@ -163,7 +178,7 @@ class ConsoleBoard extends React.Component {
     )
     
     return(
-      <div style={styles.container}>
+      <div style={{...styles.container, justifyContent: shrink ? 'space-around' : null}}>
         {entries}
         {trash}
       </div>
@@ -174,7 +189,8 @@ class ConsoleBoard extends React.Component {
 const styles = {
   container:{
     display:'flex',
-    flexWrap: 'wrap', 
+    flexWrap: 'wrap',
+    paddingTop: 10,
   },
 
   card: {

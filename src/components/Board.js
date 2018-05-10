@@ -8,7 +8,7 @@ import ReactTable from 'react-table';
 import { getHeaderImg, toLocaleString, translate2Origin } from '../lib';
 
 export default function Board({data, style}){
-  if(Object.keys(data).length == 0){
+  if(Object.keys(data).length === 0){
     return <span>Loading</span>;
   }
 

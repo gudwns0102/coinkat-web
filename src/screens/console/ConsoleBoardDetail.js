@@ -56,8 +56,13 @@ class CoinBoardDetail extends React.Component {
       if(isLoadingPush){ 
         return <CircularProgress />
       } else if (!push){
-        console.log(push);
-        return <RaisedButton label="Regist New Push" style={{width:'100%', color:'white'}} labelStyle={{color:'white', fontFamily:'Raleway'}} backgroundColor='#4DB6AC'/>
+        return 
+          <RaisedButton 
+            label="Regist New Push" 
+            style={{width:'100%', color:'white'}} 
+            labelStyle={{color:'white', fontFamily:'Raleway'}} 
+            backgroundColor='#4DB6AC'
+            onClick={() => history.push('/console/push/add')}/>
       } else {
         var upPrice = push.get("upPrice");
         var downPrice = push.get("downPrice");
@@ -110,6 +115,8 @@ class CoinBoardDetail extends React.Component {
             </div>
           </div>
           <div style={styles.content}>
+            <img src={require('../../assets/images/logo.png')} style={{width:'20%', opacity: 0.3}}/>
+            <span>PREPARING CHARTS...</span>
           </div>
         </Paper>        
       </div>
@@ -125,7 +132,6 @@ const styles = {
     justifyContent:'center',
     width:'100%',
     height:'100%',
-    flex: 1,
     alignItems:'center',
     justifyContent:'center',
   },
@@ -188,11 +194,12 @@ const styles = {
   },
 
   content: {
+    flex: 1,
     display:'flex',
+    flexDirection:'column',
     alignItems:'center',
     justifyContent:'center',
     width:'100%',
-    flex: 1,
   }
 }
 

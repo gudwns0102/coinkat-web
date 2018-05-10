@@ -1,0 +1,16 @@
+.logo-wrapper:hover .logo {
+  animation-name: rotateY;
+  animation-duration: 1.2s;
+  animation-fill-mode: forwards;
+  animation-play-state: running;
+}
+
+@keyframes rotateY{
+  from {
+    transform: rotateY(0deg);
+  }
+
+  to{
+    transform: rotateY(360deg);
+  }
+}

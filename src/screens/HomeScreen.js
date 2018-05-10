@@ -7,6 +7,8 @@ import * as actions from '../actions';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router'
 
+import * as Home from './home';
+
 class HomeScreen extends React.Component {
 
   constructor(props){
@@ -29,10 +31,50 @@ class HomeScreen extends React.Component {
     }
   }
 
-  async componentWillMount(){
-    const user = await Parse.User.current();
-    this.setState({user});
+  registerOnesignal = () => {
+    const user = Parse.User.current();
+    const OneSignal = Parse.Object.extend("OneSignal");
+    
+    if(!user){
+      return ;
+    }
+
+    window.OneSignal.getUserId(web_id => {
+      if(web_id){
+        console.log(web_id);
+        const query = new Parse.Query(OneSignal);
+        query.equalTo("parent", user);
+        query.first({
+          success: onesignal => {
+            if(!onesignal){
+              onesignal = new OneSignal();
+              onesignal.set("parent", user);
+            }
+            
+            onesignal.set("web_id", web_id);
+            onesignal.save();
+          },
+          error: (onesignal, err) => console.log(err)
+        })
+      }
+    })
+  }
+
+  componentWillMount(){
+    this.setState({user: Parse.User.current()});
     window.addEventListener('scroll', this.handleScroll);
+    setTimeout(() => {
+      window.OneSignal.push(() => {
+        window.OneSignal.on('notificationPermissionChange', e => {
+          if(e.to === 'granted'){
+            this.registerOnesignal();
+          }
+        })
+      })
+
+      window.OneSignal.registerForPushNotifications();
+      this.registerOnesignal();
+    }, 1000);
   }
 
   componentWillUnmount(){
@@ -62,52 +104,26 @@ class HomeScreen extends React.Component {
     }
 
     return (
-      <div style={styles.container} onscroll={console.log}>
-        <div style={styles.header}>
-          <Motion style={{rgb: spring(isYoffsetZero ? 0 : 255), opacity: spring(isYoffsetZero ? .5 : 1)}}>
-            {value => 
-              <div style={isYoffsetZero ? {...styles.headerBar, backgroundColor: `rgba(${value.rgb},${value.rgb},${value.rgb},${value.opacity})`} : {...stickyHeader, backgroundColor: `rgba(${value.rgb},${value.rgb},${value.rgb},${value.opacity})`}} >
-                <a href="/">
-                <img src={isYoffsetZero ? require('../assets/images/logo-white.png') : require('../assets/images/logo.png')} alt='Logo' style={styles.headerLogo}/>
-                </a>
-                <div style={styles.headerButtons}>
-                  {headerButtons}
-                </div>
-              </div>
-            }
-          </Motion>
-          <div style={styles.headerContent}>
-            <p style={styles.headerContentBody}>
-              <span style={{fontSize: 60}}>CoinKat</span> is practice of React.js
-            </p>
-            <p style={styles.headerContentSmallBody}>
-              It has been a long time to meet you, CoinKat!<br/>
-              Happy to see you again on Web Platform,<br/>
-              I've gotten along with React-Native!<br/>
-              Now, I can handle html tags as much as salt on my shelf.<br/>
-            </p>
-          </div>
-        </div>
-        <Components.Intro1 coinData={this.props.coinData} style={{width:'100%', height: 600, display:'flex', alignItems:'center'}}/>
-        <Components.Intro2 coinData={this.props.coinData} style={{width:'100%', height: 600, display:'flex', alignItems:'center'}}/>
-        <Components.Intro3 style={{width:'100%', height: 600, display:'flex', alignItems:'center'}} scrollY={this.state.scrollY}/>
-        <Components.Footer />
+      <div style={styles.container}>
+        <Home.HomeHeader />
+        <Home.HomeSection1 coinData={this.props.coinData}/>
+        <Home.HomeSection3 />
+        <Home.HomeSection2 />
+        <Home.HomeFooter />
       </div>
-    ) 
+    )
   }
 }
 
 const styles = {
   container: {
-    width:'100%',
-    height:'100%',
-    fontFamily: 'Quicksand',
+    fontFamily: 'Raleway',
   },
 
   header: {
     width:'100%',
-    height: 600,
-    backgroundImage: `url(${require('../assets/images/header1.jpg')})`,
+    height: '100vh',
+    backgroundImage: `url(${require('../assets/images/header2.jpg')})`,
     backgroundColor: 'rgba(255,255,255,0.3)',
     backgroundSize: 'cover',
     backgroundPosition: 'center',

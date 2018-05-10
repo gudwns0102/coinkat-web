@@ -4,11 +4,12 @@ import FlatButton from 'material-ui/FlatButton';
 class MenuChild extends React.Component {
   render(){
     return(
-      <FlatButton 
+      <FlatButton
         style={{...styles.container, ...this.props.style}} 
         onClick={this.props.onClick}>
         <div style={styles.buttonWrapper}>
-          <span style={styles.title}>{this.props.title}</span>
+          {this.props.icon}
+          {this.props.title}
         </div>
       </FlatButton>
     );
@@ -25,7 +26,6 @@ const styles = {
   },
 
   buttonWrapper: {
-    width:'100%',
     height: 'inherit',
     display:'flex',
     alignItems:'center',

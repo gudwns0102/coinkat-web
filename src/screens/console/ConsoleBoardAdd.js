@@ -192,6 +192,7 @@ const styles = {
   container:{
     display:'flex',
     flexWrap: 'wrap', 
+    justifyContent:'space-around'
   },
 
   entryStyle: {

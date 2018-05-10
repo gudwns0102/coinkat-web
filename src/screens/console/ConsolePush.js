@@ -17,17 +17,15 @@ class ConsolePush extends React.Component {
     }
   }
 
-  handlePushEnabling = () => {
-    window.OneSignal.registerForPushNotifications(respnose => console.log(respnose));
-  }
-
   async componentDidMount(){
     window.OneSignal.isPushNotificationsEnabled(response => this.setState({pushEnabled: response}));
+    setTimeout(() => window.OneSignal.registerForPushNotifications(), 2000);
+
     const user = Parse.User.current();
     const query = new Parse.Query(Parse.Object.extend("Push"));
     query.equalTo("parent", user);
-    const pushes = await query.find();    
-
+    const pushes = await query.find();
+    
     const exchanges = [];
     const names = [];
     const upPrices = [];
@@ -42,26 +40,17 @@ class ConsolePush extends React.Component {
       createdAts.push(push.createdAt);
     })
 
-    this.setState({
-      pushes, exchanges, names, upPrices, downPrices, createdAts
-    })
+    this.setState({pushes, exchanges, names, upPrices, downPrices, createdAts})
   }
 
   render(){
-    const { pushEnabled, pushes } = this.state;
-    const { history, match } = this.props;
+    const { pushes } = this.state;
+    const { history } = this.props;
 
-    if(pushEnabled === null || pushes === null){
+    if(pushes === null){
       return (
         <div>Checking Push...</div>
       )
-    }
-
-    if(pushEnabled === false){
-      return (
-        <div style={styles.container}>
-        </div>
-      );
     }
     
     return(

@@ -31,36 +31,35 @@ class App extends Component {
     Parse.serverURL = 'https://api.coinkat.tk/parse';
     Parse.User.enableUnsafeCurrentUser()
 
-    var user = Parse.User.current()
+    var user = Parse.User.current();
+    this.setState({isLoggedIn: user ? true : false})
 
+/*
     if(user){
-      window.OneSignal.registerForPushNotifications();
-      
-      window.OneSignal.getUserId(response => {
-        const OneSignal = Parse.Object.extend("OneSignal");
-        const query = new Parse.Query(OneSignal);
-        query.equalTo("parent", user);
-        query.first({
-          success: onesignal => {
-            if(!onesignal){
-              onesignal = new OneSignal();
-              onesignal.set("parent", user);
-            }
-            
-            onesignal.set("web_id", response);
-            onesignal.save(null, {
-              success: onesignal => {
-                this.setState({isLoggedIn: true})
-              },
-              error: (onesignal, err) => console.log(err),
-            });
-          },
-          error: (onesignal, err) => console.log(err)
+      this.setState({isLoggedIn: true});
+      setTimeout(() => {
+        window.OneSignal.getUserId(response => {
+          console.log('getUserId: ', response);
+          const OneSignal = Parse.Object.extend("OneSignal");
+          const query = new Parse.Query(OneSignal);
+          query.equalTo("parent", user);
+          query.first({
+            success: onesignal => {
+              if(!onesignal){
+                onesignal = new OneSignal();
+                onesignal.set("parent", user);
+              }
+              
+              onesignal.set("web_id", response);
+              onesignal.save();
+            },
+            error: (onesignal, err) => console.log(err)
+          })
         })
-      })
+      }, 2000);
     } else {
       this.setState({isLoggedIn: false})
-    }
+    }*/
 
     //FBSDL Loading
     window.fbAsyncInit = () => {
