@@ -16,7 +16,9 @@ class PushBoard extends React.Component {
 
     this.state = {
       pushes: this.props.pushes,
-      rotation: this.props.pushes.map(push => false)
+      rotation: this.props.pushes.map(push => false),
+      cryptoOrder: undefined,
+      createdAt: undefined,
     }
   }
 
@@ -52,14 +54,17 @@ class PushBoard extends React.Component {
     var { rotation } = this.state;
     rotation[index] = false;
     this.setState({rotation});
-  } 
+  }
+
+  onHeaderClick = (header) => {
+  }
 
   render(){
     const { style, onClick } = this.props;
     const { pushes } = this.state;
 
     var crypto_col = [
-      <FlatButton label="CRYPTOCURRENCY" style={{...styles.crypto}} labelStyle={{fontSize: 'calc(8px + 0.5vw)'}}/>
+      <FlatButton label="COIN" style={{...styles.crypto}} labelStyle={{fontSize: 'calc(8px + 0.5vw)'}}/>
     ];
 
     var price_col = [

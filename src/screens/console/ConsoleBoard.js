@@ -1,18 +1,30 @@
 import React from 'react'
 import * as Components from '../../components';
-import { Chart } from 'react-google-charts'; 
-
 import * as actions from '../../actions';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
-
 import Parse from 'parse';
 import arrayMove from 'array-move';
-
 import Paper from 'material-ui/Paper';
-
 import FontAwesome from 'react-fontawesome';
 import { Motion,spring } from 'react-motion';
+import styled from 'styled-components';
+import { CoinBoard } from '../../components';
+
+const Container = styled.div`
+  display: flex;
+  padding-top: 10px;
+  background-image: url(${require('../../assets/images/board.png')}), linear-gradient(to bottom, rgba(255,255,255,1), rgba(255,255,255,0)); 
+  background-size: cover; 
+  background-position: center;
+  background-blend-mode: lighten;
+  overflow-x: hidden;
+`
+
+const BoardWrapper = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+`
 
 class ConsoleBoard extends React.Component {
   constructor(props){
@@ -76,7 +88,7 @@ class ConsoleBoard extends React.Component {
 
   handleDragStart = e => {
     const boardData = this.state.board.get("data");
-    var id = e.target.className.split('-');
+    var id = e.target.id.split('-');
     var exchange = id[0];
     var name = id[1];
 
@@ -86,23 +98,28 @@ class ConsoleBoard extends React.Component {
 
   handleDrag = e => {
     var { board, dragItemIndex } = this.state;
-    var parent = e.target.closest('[class]');
-
+    var parent = e.target.closest('[id]');
+    
     if(parent){
-      var className = parent.className;
-      console.log(className);
-      if(className.includes('trash-button')){
+      var className = parent.id;
+      /*if(className.includes('trash-button')){
         return this.setState({willDeleted: true});
-      } else {
+      } else {*/
+        
         var boardData = board.get("data");
         var exchange = className.split('-')[0];
         var name = className.split('-')[1];
         var index = boardData.findIndex(entry => entry.exchange === exchange && entry.name === name);
         
+        if(index === -1){
+          this.setState({willDeleted: false});
+          return ;
+        }
+        
         boardData = arrayMove(boardData, dragItemIndex, index);
         board.set("data", boardData);
         this.setState({dragItemIndex: index, board, willDeleted: false});
-      }
+      //}
     } else {
       this.setState({willDeleted: false});
     }
@@ -131,34 +148,46 @@ class ConsoleBoard extends React.Component {
       return <div>Loading...</div>
     }
 
-    var boardData = board.get("data");
-
-    const cardStyle = shrink ? {
-      width: (window.innerWidth-60)/3,
-      height: (window.innerWidth-60)/3*1.6,
-      margin: 7, 
-    } : {
-      width: window.innerWidth/(window.innerWidth/200),
-      height: window.innerWidth/(window.innerWidth/200)*1.6,
-      marginLeft: 8,
-      marginRight: 8,
-      //marginRight: (window.innerWidth - window.innerWidth/Math.ceil(window.innerWidth/200))/window.innerWidth/Math.ceil(window.innerWidth/200),
-      //marginLeft:(window.innerWidth - window.innerWidth/Math.ceil(window.innerWidth/200))/window.innerWidth/Math.ceil(window.innerWidth/200),
+    const boardData = board.get("data");
+    const width = document.getElementById('console-content').clientWidth;
+    const card_count = parseInt(width/220, 10);
+    const card_width = width < 660 ? (width-80)/3 : (width-20*card_count-20)/card_count;
+    const style = {
       marginTop: 10,
-      marginBottom: 10,
+      marginLeft: 10,
+      marginRight: 10 ,
+      width: card_width,
+      height: card_width*1.6
     }
+
+    const coinCards = [];
 
     const entries = boardData.map(entry => {
       const { exchange, name } = entry;
-      const data = {
+      coinCards.push({
         exchange,
         name,
-        data: coinData[exchange][name]
-      }
+        data: coinData[exchange][name],
+        price: true,
+        push: pushMap[exchange+"-"+name],
+        onClick: name => history.push(`${match.url}/${exchange}/${name}`)
+      })
+
       return (
-        <Components.Coincard data={data} style={cardStyle} push={pushMap[exchange+"-"+name]} onClick={name => history.push(`${match.url}/${exchange}/${name}`)}/>
+        <Components.Coincard
+          exchange={exchange}
+          name={name}
+          data={coinData[exchange][name]} 
+          style={style} 
+          price
+          push={pushMap[exchange+"-"+name]}
+          onClick={name => history.push(`${match.url}/${exchange}/${name}`)}/>
       )
     })
+
+    const coinBoard =(
+      <CoinBoard style={style} width={width} cards={coinCards} price/>
+    )
 
     const springOption = {stiffness: 180, damping: 17}
     const trash = (
@@ -169,33 +198,22 @@ class ConsoleBoard extends React.Component {
           radius: spring(this.state.willDeleted ? 35: 25, springOption),
         }}>
         {value => 
-          <Paper 
-            className='trash-button' zDepth={5} style={{position: 'fixed', display:'flex', alignItems:'center', justifyContent:'center', zIndex: 10000, bottom : 30, right: 30, width: value.radius*2, height: value.radius*2, borderRadius: value.radius, opacity: value.opacity, backgroundColor: `rgba(244, 67, 54, ${value.active})`}}>
+          <Paper
+            id="trash-button" className='trash-button' zDepth={5} style={{position: 'fixed', display:'flex', alignItems:'center', justifyContent:'center', zIndex: 10000, bottom : 30, right: 30, width: value.radius*2, height: value.radius*2, borderRadius: value.radius, opacity: value.opacity, backgroundColor: `rgba(244, 67, 54, ${value.active})`}}>
             <FontAwesome className='trash-button' name='trash' size={25} />
           </Paper>
         }
       </Motion>
     )
-    
+
     return(
-      <div style={{...styles.container, justifyContent: shrink ? 'space-around' : null}}>
-        {entries}
-        {trash}
+      <div style={{height: '100%', display:'flex'}}>
+        <Container>
+          {coinBoard}
+          {trash}
+        </Container>
       </div>
     );
-  }
-}
-
-const styles = {
-  container:{
-    display:'flex',
-    flexWrap: 'wrap',
-    paddingTop: 10,
-  },
-
-  card: {
-    width:200,
-    height: 320,
   }
 }
 
@@ -205,11 +223,4 @@ const mapStateToProps = (state) => {
   };
 }
 
-const mapDispatchToProps = (dispatch) => {
-  return {
-    setCoin: coinData => dispatch(actions.setCoin(coinData)),
-    setNav: nav => dispatch(actions.setNav(nav))
-  };
-}
-
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(ConsoleBoard))
+export default withRouter(connect(mapStateToProps, null)(ConsoleBoard))

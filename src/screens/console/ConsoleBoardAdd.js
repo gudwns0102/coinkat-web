@@ -14,34 +14,25 @@ import FlatButton from 'material-ui/FlatButton';
 import CircularProgress from 'material-ui/CircularProgress';
 
 import TextField from 'material-ui/TextField';
+import { Coincard } from '../../components';
+import styled from 'styled-components';
+import { CoinBoard } from '../../components';
 
-class CoinEntry extends React.Component{
-  
-  constructor(props){
-    super(props);
+const Container = styled.div`
+  width: 100%;
+  display: flex;
+  padding-top: 10px;
+  background-image: url(${require('../../assets/images/board.png')}), linear-gradient(to bottom, rgba(255,255,255,1), rgba(255,255,255,0)); 
+  background-size: cover; 
+  background-position: center;
+  background-blend-mode: lighten;
+  overflow-x: hidden;
+`
 
-    this.state = {
-      isMouseOver: false,
-    }
-  }
-  render(){
-    const { name, style } = this.props;
-    const { isMouseOver  } = this.state;
-
-    return (
-      <Paper 
-        style={{...style, cursor: 'pointer'}} 
-        zDepth={isMouseOver ? 4 : 2} 
-        onClick={this.props.onClick}
-        onMouseOver={() => this.setState({isMouseOver: true})}
-        onMouseLeave={() => this.setState({isMouseOver: false})}>
-        <img src={getHeaderImg(name)} alt={name} style={{width: '15%', marginTop: '2%'}} />
-        <span style={{fontWeight:'bold'}}>{translate2Origin(name)}</span>
-        <span style={{fontSize: 15, color:'gray'}}>{name}</span>
-      </Paper>
-    );
-  }
-}
+const BoardWrapper = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+`
 
 class ConsoleAddCoin extends React.Component {
 
@@ -110,19 +101,14 @@ class ConsoleAddCoin extends React.Component {
 
   async componentDidMount(){
     var { data } = await axios.get('https://api.coinkat.tk/reverseAll');
-    this.setState({isLoadingData: false, coin2exchange: data});
-    
+    this.setState({coin2exchange: data});
   }
 
   render(){
-    const { isLoadingData, coin2exchange, dialogOpen, selectedCoin } = this.state;
+    const { coin2exchange, dialogOpen, selectedCoin } = this.state;
 
-    if(isLoadingData){
-      return (
-        <div style={{...styles.container, alignItems:'center', justifyContent:'center'}}>
-          <CircularProgress />
-        </div>
-      );
+    if(!coin2exchange){
+      return <div></div>
     }
 
     const queryField = (
@@ -134,14 +120,6 @@ class ConsoleAddCoin extends React.Component {
           onChange={(e, queryText) => this.setState({queryText})}
           style={{width: 200, margin: 15}}/>
       </div>
-    );
-
-    const entries = Object.keys(this.filterData(coin2exchange)).map(coin => 
-      <CoinEntry 
-        key={coin} 
-        name={coin} 
-        style={styles.entryStyle} 
-        onClick={() => this.handleOpen(coin)}/>
     );
 
     var exchangeList = selectedCoin ? coin2exchange[selectedCoin] : [];
@@ -178,35 +156,32 @@ class ConsoleAddCoin extends React.Component {
       </Dialog>
     );
 
+    const consoleContent = document.getElementById('console-content');
+    const width = consoleContent ? consoleContent.clientWidth : document.getElementById('console-content')
+
+    const coinCards = Object.keys(this.filterData(coin2exchange)).map(coin => {
+      return {
+        name: coin,
+        onClick: () => this.handleOpen(coin),
+      }
+    });
+
+    const coinBoard = (
+      <CoinBoard cards={coinCards} width={width} price={false} />
+    )
+
     return(
-      <div style={styles.container}>
-        {queryField}
-        {entries}
-        {dialog}
+      <div style={{height:'100%', display: 'flex'}}>
+        <Container>
+          <BoardWrapper>
+            {queryField}
+            {coinBoard}
+            {dialog}
+          </BoardWrapper>
+        </Container>
       </div>
     );
   }
-}
-
-const styles = {
-  container:{
-    display:'flex',
-    flexWrap: 'wrap', 
-    justifyContent:'space-around'
-  },
-
-  entryStyle: {
-    display:'flex',
-    position:'relative',
-    flexDirection:'column',
-    width: 200,
-    height: 125,
-    alignItems:'center',
-    justifyContent:'center',
-    fontFamily:'Raleway',
-    margin: 15,
-    cursor: 'pointer'
-  },
 }
 
 const mapStateToProps = (state) => {
@@ -215,11 +190,4 @@ const mapStateToProps = (state) => {
   };
 }
 
-const mapDispatchToProps = (dispatch) => {
-  return {
-    setCoin: coinData => dispatch(actions.setCoin(coinData)),
-    setNav: nav => dispatch(actions.setNav(nav))
-  };
-}
-
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(ConsoleAddCoin))
+export default withRouter(connect(mapStateToProps, null)(ConsoleAddCoin))

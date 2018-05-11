@@ -99,7 +99,6 @@ const styles = {
     display:'flex', 
     alignItems:'center', 
     height: 48, 
-    backgroundColor:'#ECEFF1',
     boxShadow: '0 0 4px rgba(0,0,0,.14), 0 4px 8px rgba(0,0,0,.28)', 
     zIndex: 100
   },

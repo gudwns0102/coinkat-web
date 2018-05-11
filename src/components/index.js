@@ -5,7 +5,7 @@ import Intro2 from './Intro2';
 import Intro3 from './Intro3';
 
 import Coincard from './Coincard';
-
+import CoinBoard from './CoinBoard';
 
 import PushRow from './PushRow';
 import PushBoard from './PushBoard';
@@ -21,6 +21,7 @@ export {
   Intro2,
   Intro3,
   Coincard,
+  CoinBoard,
   PushRow,
   PushBoard,
   MenuParent,
